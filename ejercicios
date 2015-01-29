@@ -1,0 +1,38 @@
+1
+
+Realizar un script que dispare ping a un rango de direcciones. Si el 
+equipo destino responde, se guarda en el archivo "despiertos.txt" la 
+direccion IP y la mac asociada a esa IP
+
+2
+
+Realizar un script que ponga un reloj en la esquina inferior derecha 
+de la pantalla. Se actualiza cada minuto
+
+3
+
+Realizar un script que vigile si mientras estoy en sesion entra un 
+usuario "root". Si es posible que me diga desde que ip y que mac ha 
+entrado
+
+4 
+
+Realizar el script busca que reciba como parametro el nombre de un 
+archivo a buscar. Si existe el archivo que me lo diga y donde se 
+encuentra. 
+
+5
+
+Realizar un script que muestre ordenado alfabeticamente los nombres 
+de los usuarios cuyo uid sea superior a un determinado valor
+
+6
+
+Realizar un script que muestre los trabajos pendientes de imprimir y 
+me pregunte si quiero borrar alguno
+
+7
+
+
+
+
