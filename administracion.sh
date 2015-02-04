@@ -34,7 +34,7 @@ echo -n "Introduzca su opcion: "
 }
 
 
-function crearmuchosusuarios{
+function crearmuchosusuarios {
 for file in $filename
 	while (read nombre ape1 ape2 cilo) do
 		echo $nombre > nom
@@ -42,6 +42,9 @@ for file in $filename
 		usuario= $ape1$ape2$inicial
 		if [ `grep $usuario /etc/passwd` ]; then
 			echo "ya existe $usuario" >> crearusuarios.log
+		else
+			`adduser $usuario`
+			echo "se ha creado $usuario correctamente a las `date +%R:%S`"
 		fi
 done
 
@@ -50,23 +53,24 @@ done
 function crearusuario{
 echo -n "introduce el nombre de usuario que quieres agregar: "
 read usuario
-if [ $usuario != "" ] then
-	if [ grep $usuario /etc/passwd ]then
+if [ $usuario != "" ]; then
+	if [ grep -q $usuario /etc/passwd ]then
 		echo "El usuario ya existe"
 		pausa
 	else
-		if [ adduser $usuario ] then
+		if [ adduser $usuario ]; then
 			echo "Se ha creado el usuario"
 		else
 			echo "ha habido un error"
 		fi
 	fi
+else
+	if [$usuario == "" ]; then
+		echo "El usuario que ha introducido no es valido"
+		exit $E_XUSER
+	fi
 fi
 
-if [ $usuario == "" ] then
-	echo "El usuario que ha introducido no es valido"
-	exit $E_XUSER 
-fi
 }
 
 function borrausuario {
@@ -75,9 +79,13 @@ function borrausuario {
 		echo -n "Introduzca el usuario a borrar: "
 		read busuario
 		`userdel -r $busuario`
-		`cp /home/$busuario /backup/$busuario`
-		echo "Se ha creado una Copia del home de $busuario"
-		echo -e "\e[0;31m Se ha borrado el usuario $busuario"
+		if [ -e && -d /backup ]; then
+			`cp /home/$busuario /backup/$busuario`
+			echo "Se ha creado una Copia del home de $busuario"
+			echo -e "\e[0;31m Se ha borrado el usuario $busuario"
+		else
+			`mkdir /backup`
+		fi
 }
 
 
@@ -93,7 +101,7 @@ case $respuesta in
 	1)
 		crearusuario;;
 	2)
-		borausuario;;
+		borrausuario;;
 	3)
 		crearmuchosusuarios;;
 
