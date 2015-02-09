@@ -65,11 +65,6 @@ if [ $usuario != "" ]; then
 		echo "ha habido un error"
 	fi
 fi
-if [ "$usuario" == "" ]; then
-		echo "El usuario que ha introducido no es valido"
-		exit $E_XUSER
-fi
-
 
 }
 
@@ -78,9 +73,9 @@ function borrausuario {
 		echo "ha seleccionado borrar un usuario.\n"
 		echo -n "Introduzca el usuario a borrar: "
 		read busuario
-		`userdel -r $busuario`
-		if [ -e && -d /backup ]; then
+		if [  -d /backup ]; then
 			`cp /home/$busuario /backup/$busuario`
+			`userdel -r $busuario`
 			echo "Se ha creado una Copia del home de $busuario"
 			echo -e "\e[0;31m Se ha borrado el usuario $busuario"
 		else
