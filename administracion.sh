@@ -6,8 +6,7 @@ E_NOTROOT=85
 E_NOTUSER=86
 E_EXIST=87
 E_XUSER=88
-filename="usuarios.txt"
-IFS=","
+IFS=":"
 
 
 clear
@@ -35,8 +34,9 @@ echo -n "Introduzca su opcion: "
 
 
 function crearmuchosusuarios {
-for file in $filename
-	while (read nombre ape1 ape2 cilo) do
+filename=`ls usuario*`
+for file  in $filename ; do
+	while (read nombre ape1 ape2) do
 		echo $nombre > nom
 		inicial=`cut -b 1-1 nom`
 		usuario= $ape1$ape2$inicial
@@ -46,30 +46,30 @@ for file in $filename
 			`adduser $usuario`
 			echo "se ha creado $usuario correctamente a las `date +%R:%S`"
 		fi
+	done
 done
 
 }
 
-function crearusuario{
-echo -n "introduce el nombre de usuario que quieres agregar: "
+function crearusuario {
+
+echo -n introduce el nombre de usuario que quieres agregar:
 read usuario
 if [ $usuario != "" ]; then
-	if [ grep -q $usuario /etc/passwd ]then
+	if [ `grep "$usuario" < /etc/passwd` ]; then
 		echo "El usuario ya existe"
-		pausa
+		#pausa;
+	elif [ `adduser $usuario` ]; then
+		echo "Se ha creado el usuario"
 	else
-		if [ adduser $usuario ]; then
-			echo "Se ha creado el usuario"
-		else
-			echo "ha habido un error"
-		fi
-	fi
-else
-	if [$usuario == "" ]; then
-		echo "El usuario que ha introducido no es valido"
-		exit $E_XUSER
+		echo "ha habido un error"
 	fi
 fi
+if [ "$usuario" == "" ]; then
+		echo "El usuario que ha introducido no es valido"
+		exit $E_XUSER
+fi
+
 
 }
 
@@ -89,7 +89,8 @@ function borrausuario {
 }
 
 
-function pausa{
+function pausa {
+
 	echo "Pulsa [Intro] para continuar"
 	read kk
 	sleep 2

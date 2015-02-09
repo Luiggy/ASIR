@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 #estescript recive como parametros que se cogeran por pantalla los nombres
 #y apellidos de los usuarios que se guardaran en un archivo separado por aquello
@@ -22,14 +22,14 @@ S para continuar, o n para cambiar el nombre del archivo)"
 read libro
 sleep 4
 
-if [ $libro == "n" ]; then
+if [ $libro -e "n" ]; then
 	clear
 	echo -n "dame el nombre del archivo donde deseas guardar los datos"
 	read nomarchivo
 fi
 echo "se va a proceder a la creacion del archivo necesitare los siguientes daos:"
-
-echo -n Nombre del alumnio:
+echo
+echo -n Nombre del alumno:
 read nombre
 echo -n Primer apellido:
 read apelli1
@@ -38,7 +38,7 @@ read apelli2
 echo ""
 while [ -n "$nombre" ];  do
 
-echo -n Nombre del alumnio:
+echo -n Nombre del alumno:
 read nombre
 echo -n Primer apellido:
 read apelli1
@@ -52,6 +52,6 @@ fi
 echo "El ultimo nombre metido fue: $nombre $apelli1 $apelli2 ."
 echo ""
 
-echo "$nombre$separador$apelli1$apelli2" >> $nomarchivo
+echo "$nombre$separador$apelli1$separador$apelli2" >> $nomarchivo
 done
 
