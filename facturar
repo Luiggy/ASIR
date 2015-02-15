@@ -1,0 +1,81 @@
+#!/bin/bash
+#primero nos creamos las variables locales que vamos a usar en el propio script
+#para no tener qwue por ejemplo escribir el path completo a nuestro fichero.
+log=/var/log/webaccess.log
+informe1=informe1.txt
+informe2=informe2.txt
+informe3=informe3.txt
+informe4=informe4.txt
+factura=factura.html
+precio=$1
+OLFIFS=$IFS
+IFS=";"
+#comprobamos que nos pasan al menos un parametro como valor
+if [ -z $precio ];then
+	echo "Uso: $0 [precio] "
+	exit 2
+fi
+#comprobamos que el archivo informe 1 existe en ese caso lo borramos para que
+#nuestro script funcione
+if [ -f $informe1 ];then
+	rm -f $informe1
+fi
+if [ -f $informe2 ]; then
+	rm -f $informe2
+fi
+if [ -f $informe3 ];then
+	rm -f $informe3
+fi
+if [ -f $informe4 ];then
+	rm -f $informe4
+fi
+if [ -f $factura ];then
+	rm -f $factura
+fi
+	#ordenamos el archivo:
+#########################################INFORME 1#########################################
+#abrimos y ordenamos el archivo al vuelo
+#ahora leemos los campos que nos interesan
+awk -F";" '{a[$1]+= $4;}END{for(i in a){print i";"a[i];}}' $log |sort >> $informe1
+#-F indifa el tipo de separador para AWK
+# luego lo que creamos es basicamente el array de los usuarios que estan en $1
+# para awk que es el primer campo, y para cada uno de ellos sumamos el $4 campo
+# #######################################INFORME 2#########################################
+awk -F";" '{a[$1]+= $4;}END{for(i in a){print i";"a[i]";"a[i]*"'$precio'";}}' $log |sort >> $informe2
+#########################################INFORME 3#########################################
+cat $informe2 >> $informe3
+awk -F";" '{sum2+= $2; sum3 +=$3;}END{{print "TOTAL;"sum2";"sum3;}}' $informe2 >> $informe3
+
+#########################################INFORME 4#########################################
+#como sabesmos que informe 2 nos funciona y nos da los valores que deseamos lo
+#unico que debemos hacer es añadirle la suma de los valores del TOTAL ordenados
+#por precio
+
+sort -g -r -t";" -k3 informe2.txt >informe4.txt
+awk -F";" '{sum2+= $2; sum3 +=$3;}END{{print "TOTAL;"sum2";"sum3;}}' $informe2 >> $informe4
+##############################################Facturar.html#############################
+echo "<table border=1> <tr><td>USUARIO</td><td>TIEMPO</td><td>IMPORTE</td></tr>" >> $factura
+awk -F";" '{print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td></tr>\n"}' $informe4 >>$factura
+echo "</table>" >> $factura
+interval=1
+long_interval=30
+
+{
+	trap "exit" SIGUSR1
+	sleep $interval; sleep $interval
+	while true
+	do
+		echo -n '#'     # Use dots.
+		sleep $interval
+	done; } &         # Start a progress bar as a background process.
+
+	pid=$!
+	trap "echo !; kill -USR1
+	$pid; wait $pid"  EXIT # To handle ^C.
+	echo -n 'Espere mientras se procesan y generan los informes'
+	sleep $long_interval
+	echo  "Ya puede revisar los informes."
+	kill -USR1 $pid
+	wait $pid # Paramos la  progress bar.
+	trap EXIT
+	exit $?
