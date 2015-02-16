@@ -2,24 +2,37 @@
 set +x
 IFS=":"
 ficheroaleer=../ventas.log
-#creamos un archivo por cada usuario en este caso ( primer campo)
+#borramos todos los ficheros con extension .informe en .
 rm -Rf *.informe
+#comprobamos que la carpeta en la que vamos a trabajar esta creada con el -d
 if [ -d temporal ];then
-	echo > /dev/null
+#al existir con cambiamos a dicha carpeta y borramos lo que hubiera dentro.
+	cd temporal
+	rm -Rf *
 else
+#en caaso de que no exista la creamos
 	mkdir temporal
 fi
-cd temporal
-rm -Rf *
+#leemos los datos que deseemos de nuestro log (ordenado)
+#tambien podriamos crear una copia ordenada y pasarsela al While en el done
+#< fichero
 cat $ficheroaleer |sort|
 while read usuario concepto importe; do
+	#buscamos alguna coincidencia en el /etc/passwd
+	#en caso de haberla el $? será igual a 0. Se le a pasado la opcion -q al
+	#para que no nos muestre nada por pantalla.
 	grep -q  $usuario /etc/passwd
 	if [ $? -eq 0 ];then
+		#al existir el usuario , con awk guardamos el campo de el nombre real
+		#del usuario el la variable nombreemp al ser la posicion 5 del
+		#/etc/passwd se lo indicamos al awk.
 		nombreemp=`awk -F":" /$usuario/'{print $5}' < /etc/passwd`
+		#guardamos los datos de cada fichero en un fichero con su nombre.
 		echo "$usuario$IFS$nombreemp$IFS$concepto$IFS$importe" >> $usuario
 	fi
 done
-
+#para que no tengamos problemas con los informes y su tratamiento, los he
+#llevado al directorio superior ya que posteriormente el temporal lo borraremos
 #creamos el formato de salida del programa por cada fichero:
 for ii in *; do
 	read usuario nombre concept imp < $ii
@@ -34,12 +47,13 @@ for ii in *; do
 done
 set -x
 for i in *;do
-
+	#por cada fichero creamos la estructura que falta de la salida:
 	while read  usuario nombre concepto import; do
 		let total=$((total+import))
 		echo -e " $concepto \t \t \t   $import"
 
 	done < $i >> ../$i".informe"
+	#añadimos la parte final a cada informee:
 	echo -e "---------------------------------------------" >>../$i."informe"
 	echo -e "TOTAL:\t\t            $total">> ../$i".informe"
 	comision=`echo  "scale=2;$total*0.05" |bc`
