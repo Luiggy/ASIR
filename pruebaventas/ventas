@@ -1,0 +1,48 @@
+#!/bin/bash
+set +x
+IFS=":"
+ficheroaleer=../ventas.log
+#creamos un archivo por cada usuario en este caso ( primer campo)
+rm -Rf *.informe
+if [ -d temporal ];then
+	echo > /dev/null
+else
+	mkdir temporal
+fi
+cd temporal
+rm -Rf *
+cat $ficheroaleer |sort|
+while read usuario concepto importe; do
+	grep -q  $usuario /etc/passwd
+	if [ $? -eq 0 ];then
+		nombreemp=`awk -F":" /$usuario/'{print $5}' < /etc/passwd`
+		echo "$usuario$IFS$nombreemp$IFS$concepto$IFS$importe" >> $usuario
+	fi
+done
+
+#creamos el formato de salida del programa por cada fichero:
+for ii in *; do
+	read usuario nombre concept imp < $ii
+	echo -e "========================================">> ../$ii".informe"
+	echo -e "    I N F O R M E   D E   V E N T A S">> ../$ii".informe"
+	echo -e "========================================">>../$ii".informe"
+	echo -e "codigo empleado:\t $usuario">>../$ii".informe"
+	echo -e "nombre empleado:\t $nombre">>../$ii".informe"
+	echo -e "-------------- 	     ----------------" >>../$ii".informe"
+	echo -e "   concepto \t	\t importe">>../$ii".informe"
+	echo -e "-------------- 	     ----------------">>../$ii".informe"
+done
+set -x
+for i in *;do
+
+	while read  usuario nombre concepto import; do
+		let total=$((total+import))
+		echo -e " $concepto \t \t \t   $import"
+
+	done < $i >> ../$i".informe"
+	echo -e "---------------------------------------------" >>../$i."informe"
+	echo -e "TOTAL:\t\t            $total">> ../$i".informe"
+	comision=`echo  "scale=2;$total*0.05" |bc`
+	echo -e "COMISION:\t\t         $comision" >> ../$i".informe"
+	total=0
+done
